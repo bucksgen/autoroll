@@ -224,16 +224,6 @@ def check_confirmation():
             return False, False, False
 
 
-def enum_cb(hwnd, results):
-    winlist.append((hwnd, win32gui.GetWindowText(hwnd)))
-
-
-win32gui.EnumWindows(enum_cb, toplist)
-ee_window = [
-    (hwnd, title) for hwnd, title in winlist if "Eden Eternal               " in title
-]
-
-
 def update_altar_screen():
     opencv_img = pyautogui.screenshot()
     opencv_img = cv2.cvtColor(np.array(opencv_img), cv2.COLOR_RGB2BGR)
@@ -312,7 +302,7 @@ def refresh():
 
 root.resizable(0, 0)
 #label = Label(text="Pick items you want to get")
-label.grid(row=0, column=0, columnspan=7)
+#label.grid(row=0, column=0, columnspan=7)
 r = Button(root, text="Load altar", command=refresh)
 r.grid(row=10, column=1, columnspan=3)
 b = Button(root, text="Start Rolling", command=rolls)
