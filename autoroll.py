@@ -4,19 +4,33 @@ import pyautogui
 import numpy as np
 import time
 import ctypes
+import os
 import threading
+import traceback
+import sys
 from tkinter import *
 from pynput import keyboard
 from PIL import ImageGrab, Image, ImageDraw, ImageTk
 
 root = Tk()
 
-title = cv2.imread("title.png")
-transform = cv2.imread("transform_e.png")
-transform_d = cv2.imread("transform_d.png")
-arrow = cv2.imread("arrow.png")
-take = cv2.imread("take_e.png")
-double = cv2.imread("x2.png", -1)
+
+def resource_path():
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return base_path
+
+
+#dirpath = os.path.dirname(__file__)
+title = cv2.imread(resource_path()+"\\title.png")
+transform = cv2.imread(resource_path()+"\\transform_e.png")
+transform_d = cv2.imread(resource_path()+"\\transform_d.png")
+arrow = cv2.imread(resource_path()+"\\arrow.png")
+take = cv2.imread(resource_path()+"\\take_e.png")
+confirmation = cv2.imread(resource_path()+"\\confirmation.png")
+double = cv2.imread(resource_path()+"\\x2.png", -1)
 h, w = title.shape[:-1]
 found = 0
 toplist, winlist = [], []
@@ -105,18 +119,11 @@ def get_double_item(altar, coordinate_double):
     coordinate = coordinate_double[:-1]
     widget = root.grid_slaves(
         row=coordinate[0], column=coordinate[1])[0]
-    try:
-        index = int(re.findall("\d+", str(widget))[0])-1
-    except:
-        index = 0
+    index = int(widget._name)
     altar_image = opencv_results[index]
-    '''cv2.imshow('xxx', altar)
-    cv2.imshow('asd', double_item)
-    cv2.imshow('cxz', altar_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()'''
     score, min_loc = template_matching(double_item, altar_image)
-    if score >= 0.95:
+    print(score)
+    if score >= 0.99:
         return True
     else:
         return False
@@ -158,12 +165,11 @@ def rolling():
                     click_take_item(top_x, top_y)
                     time.sleep(0.4)
                     # if get_trap is False or coordinate[0] == 1:
-                    while True:
-                        confirmation, x, y = check_confirmation()
-                        altar, top_x, top_y = update_altar_screen()
-                        if confirmation is not False:
-                            click_confirm(x, y, top_x, top_y)
-                            break
+                    # while True:
+                    confirmation, x, y = check_confirmation()
+                    altar, top_x, top_y = update_altar_screen()
+                    if x > 0:
+                        click_confirm(x, y, top_x, top_y)
                     time.sleep(0.4)
             else:
                 break
@@ -204,100 +210,98 @@ def click(label):
         label.configure(image=results[index])
         label.image = results[index]
         targets.append(coord)
-    # print(targets)
+    print(targets)
 
 
 def check_confirmation():
-    confirmation = cv2.imread("confirmation.png")
+    global confirmation
     opencv_img = pyautogui.screenshot()
     opencv_img = cv2.cvtColor(np.array(opencv_img), cv2.COLOR_RGB2BGR)
     opencv_img_h, opencv_img_w = opencv_img.shape[:-1]
-    if opencv_img_h == 768 and opencv_img_w == 1366:
-        score, min_loc = template_matching(opencv_img, confirmation)
-        top_x = min_loc[0]
-        top_y = min_loc[1]
-        bottom_x = min_loc[0] + 232
-        if score >= 0.99:
-            confirmation = opencv_img[top_y: top_y + 198, top_x:bottom_x]
-            return confirmation, top_x, top_y
-        else:
-            return False, False, False
+    # if opencv_img_h == 768 and opencv_img_w == 1366:
+    score, min_loc = template_matching(opencv_img, confirmation)
+    top_x = min_loc[0]
+    top_y = min_loc[1]
+    bottom_x = min_loc[0] + 232
+    if score >= 0.99:
+        confirmation = opencv_img[top_y: top_y + 198, top_x:bottom_x]
+        return confirmation, top_x, top_y
+    else:
+        return False, False, False
 
 
 def update_altar_screen():
     opencv_img = pyautogui.screenshot()
     opencv_img = cv2.cvtColor(np.array(opencv_img), cv2.COLOR_RGB2BGR)
     opencv_img_h, opencv_img_w = opencv_img.shape[:-1]
-    if opencv_img_h == 768 and opencv_img_w == 1366:
-        score, min_loc = template_matching(opencv_img, title)
-        top_x = min_loc[0]
-        top_y = min_loc[1]
-        bottom_x = min_loc[0] + w
-        if score >= 0.99:
-            altar = opencv_img[top_y: top_y + 415, top_x:bottom_x]
-            return altar, top_x, top_y
-        else:
-            return 0, 0, 0
+    # if opencv_img_h == 768 and opencv_img_w == 1366:
+    score, min_loc = template_matching(opencv_img, title)
+    top_x = min_loc[0]
+    top_y = min_loc[1]
+    bottom_x = min_loc[0] + w
+    if score >= 0.99:
+        altar = opencv_img[top_y: top_y + 415, top_x:bottom_x]
+        return altar, top_x, top_y
+    else:
+        return 0, 0, 0
 
 
 def refresh():
-    try:
-        targets.clear()
-        results.clear()
-        grays.clear()
-        overlays.clear()
-        _list = root.winfo_children()
-        i = 0
-        for item in _list:
-            if item.winfo_class() == 'Label':
-                item.destroy()
-        while True:
-            altar, top_x, top_y = update_altar_screen()
-            if top_x != 0:
-                for y in range(1, 8):
-                    cur_y = start_y+(40*(y-1))
-                    for x in range(1, 7):
-                        cur_x = start_x+(36*(x-1))
-                        result = altar[cur_y:cur_y+34, cur_x:cur_x+34]
-                        opencv_results.append(result)
-                        overlayed = result.copy()
-                        gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
-                        b, g, r = cv2.split(result)
-                        result = cv2.merge((r, g, b))
-                        result = Image.fromarray(result)
-                        result = ImageTk.PhotoImage(image=result)
-                        results.append(result)
+    targets.clear()
+    results.clear()
+    grays.clear()
+    overlays.clear()
+    _list = root.winfo_children()
+    i = 0
+    for item in _list:
+        if item.winfo_class() == 'Label':
+            item.destroy()
+    while True:
+        altar, top_x, top_y = update_altar_screen()
+        if top_x != 0:
+            for y in range(1, 8):
+                cur_y = start_y+(40*(y-1))
+                for x in range(1, 7):
+                    cur_x = start_x+(36*(x-1))
+                    result = altar[cur_y:cur_y+34, cur_x:cur_x+34]
+                    opencv_result = altar[cur_y:cur_y+21, cur_x:cur_x+34]
+                    opencv_results.append(opencv_result)
+                    overlayed = result.copy()
+                    gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
+                    b, g, r = cv2.split(result)
+                    result = cv2.merge((r, g, b))
+                    result = Image.fromarray(result)
+                    result = ImageTk.PhotoImage(image=result)
+                    results.append(result)
 
-                        gray = Image.fromarray(gray)
-                        gray = ImageTk.PhotoImage(image=gray)
-                        grays.append(gray)
+                    gray = Image.fromarray(gray)
+                    gray = ImageTk.PhotoImage(image=gray)
+                    grays.append(gray)
 
-                        y1, y2 = 0, 0 + double.shape[0]
-                        x1, x2 = 0, 0 + double.shape[1]
-                        alpha_s = double[:, :, 3] / 255.0
-                        alpha_l = 1.0 - alpha_s
+                    y1, y2 = 0, 0 + double.shape[0]
+                    x1, x2 = 0, 0 + double.shape[1]
+                    alpha_s = double[:, :, 3] / 255.0
+                    alpha_l = 1.0 - alpha_s
 
-                        for c in range(0, 3):
-                            overlayed[y1:y2, x1:x2, c] = (
-                                alpha_s * double[:, :, c] + alpha_l * overlayed[y1:y2, x1:x2, c])
-                        b, g, r = cv2.split(overlayed)
-                        overlayed = cv2.merge((r, g, b))
-                        overlayed = Image.fromarray(overlayed)
-                        overlayed = ImageTk.PhotoImage(image=overlayed)
+                    for c in range(0, 3):
+                        overlayed[y1:y2, x1:x2, c] = (
+                            alpha_s * double[:, :, c] + alpha_l * overlayed[y1:y2, x1:x2, c])
+                    b, g, r = cv2.split(overlayed)
+                    overlayed = cv2.merge((r, g, b))
+                    overlayed = Image.fromarray(overlayed)
+                    overlayed = ImageTk.PhotoImage(image=overlayed)
 
-                        overlays.append(overlayed)
-                        label = Label(image=gray, name=str(i))
-                        label.bind("<Button-1>", lambda event,
-                                   label=label: click(label))
-                        label.image = gray
-                        labels.append(label)
-                        label.grid(row=y, column=x)
-                        i = i+1
-                break
-            else:
-                time.sleep(3)
-    except:
-        pass
+                    overlays.append(overlayed)
+                    label = Label(image=gray, name=str(i))
+                    label.bind("<Button-1>", lambda event,
+                               label=label: click(label))
+                    label.image = gray
+                    labels.append(label)
+                    label.grid(row=y, column=x)
+                    i = i+1
+            break
+        else:
+            time.sleep(3)
 
 
 root.resizable(0, 0)
@@ -308,5 +312,5 @@ r.grid(row=10, column=1, columnspan=3)
 b = Button(root, text="Start Rolling", command=rolls)
 b.grid(row=10, column=4, columnspan=3)
 root.attributes("-topmost", True)
+
 root.mainloop()
-refresh()
