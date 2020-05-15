@@ -144,8 +144,11 @@ def rolling():
         global running
         running = True
         while running == True:
-            altar, top_x, top_y = update_altar_screen()
-            transform_status = check_transform(altar)
+            while True:
+                altar, top_x, top_y = update_altar_screen()
+                if top_x > 0:
+                    transform_status = check_transform(altar)
+                    break
             if transform_status is True:
                 # start rolling
                 click_transform(top_x, top_y)
@@ -161,13 +164,15 @@ def rolling():
                 if coordinate_double in targets:
                     double_item = get_double_item(altar, coordinate_double)
                 if coordinate in targets or double_item is True or coordinate[0] == 1 or get_trap is True:
-                    altar, top_x, top_y = update_altar_screen()
+                    while True:
+                        altar, top_x, top_y = update_altar_screen()
+                        if top_x > 0:
+                            break
                     click_take_item(top_x, top_y)
                     time.sleep(0.4)
                     # if get_trap is False or coordinate[0] == 1:
                     # while True:
                     confirmation, x, y = check_confirmation()
-                    altar, top_x, top_y = update_altar_screen()
                     if x > 0:
                         click_confirm(x, y, top_x, top_y)
                     time.sleep(0.4)
@@ -177,7 +182,11 @@ def rolling():
 
 
 def rolls():
-    pyautogui.moveTo(1, 1)
+    while True:
+        altar, top_x, top_y = update_altar_screen()
+        if top_x > 0:
+            break
+    pyautogui.moveTo(top_x+5, top_y+5)
     time.sleep(0.05)
     ctypes.windll.user32.mouse_event(2, 0, 0, 0, 0)
     time.sleep(0.05)
