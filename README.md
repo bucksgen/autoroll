@@ -1,6 +1,9 @@
 # autoroll
 Rolls Eden Eternal altar automatically
 
+# Download link
+https://drive.google.com/open?id=15-UxpbN15nlrvS_6xvCM85eccwrlC1E8
+
 # Before you use it
 You must run the bot as Administrator<br/>
 You must use the default UI theme<br/>
