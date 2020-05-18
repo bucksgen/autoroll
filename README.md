@@ -7,6 +7,7 @@ https://drive.google.com/open?id=15-UxpbN15nlrvS_6xvCM85eccwrlC1E8
 # Before you use it
 You must run the bot as Administrator<br/>
 You must use the default UI theme<br/>
+Your EE must be fullscreen<br/>
 Your monitor resolution must be 1366x768 or above<br/>
 
 # How to
