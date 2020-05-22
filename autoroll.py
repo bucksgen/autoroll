@@ -249,8 +249,14 @@ def refresh():
         cur_y = start_y+(40*(y-1))
         for x in range(1, 7):
             cur_x = start_x+(36*(x-1))
-            result = altar[cur_y:cur_y+34, cur_x:cur_x+34]
-            opencv_result = altar[cur_y:cur_y+21, cur_x:cur_x+34]
+            if x == 4 and y == 3:
+                result = altar[cur_y:cur_y+34, cur_x+1:cur_x+35]
+                opencv_result = altar[cur_y:cur_y+21, cur_x+1:cur_x+35]
+                cv2.imwrite("result.png", result)
+                cv2.imwrite("opencv_result.png", opencv_result)
+            else:
+                result = altar[cur_y:cur_y+34, cur_x:cur_x+34]
+                opencv_result = altar[cur_y:cur_y+21, cur_x:cur_x+34]
             opencv_results.append(opencv_result)
             overlayed = result.copy()
             gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
@@ -288,8 +294,6 @@ def refresh():
 
 
 root.resizable(0, 0)
-#label = Label(text="Pick items you want to get")
-#label.grid(row=0, column=0, columnspan=7)
 r = Button(root, text="Load altar", command=refresh)
 r.grid(row=10, column=1, columnspan=3)
 b = Button(root, text="Start Rolling", command=rolls)
