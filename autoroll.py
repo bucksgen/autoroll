@@ -252,8 +252,6 @@ def refresh():
             if x == 4 and y == 3:
                 result = altar[cur_y:cur_y+34, cur_x+1:cur_x+35]
                 opencv_result = altar[cur_y:cur_y+21, cur_x+1:cur_x+35]
-                cv2.imwrite("result.png", result)
-                cv2.imwrite("opencv_result.png", opencv_result)
             else:
                 result = altar[cur_y:cur_y+34, cur_x:cur_x+34]
                 opencv_result = altar[cur_y:cur_y+21, cur_x:cur_x+34]
