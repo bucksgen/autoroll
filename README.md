@@ -9,7 +9,7 @@ You must run the bot as Administrator<br/>
 You must use the default UI theme<br/>
 Your EE must be fullscreen<br/>
 Your monitor resolution must be 1366x768 or above<br/>
-Only use this if your internet connection is stable<br/>
+ONLY USE THIS WHEN YOUR INTERNET IS STABE, IF NOT IT WILL SKIP THINGS<br/>
 
 # How to
 1. Open the altar window on EE then open the bot. Don't let anything obstruct the altar window(ie world boss kill announcement), drag it to the bottom part of the screen.<br/>
